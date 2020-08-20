@@ -22,6 +22,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -247,6 +248,12 @@ This will execute the test on the Load Impact cloud service. Use "k6 login cloud
 		var progressErr error
 		ticker := time.NewTicker(time.Millisecond * 2000)
 		shouldExitLoop := false
+		go func() {
+			// TODO replace with another context
+			if err := client.StreamLogsToLogger(context.Background(), logger, refID, cloudConfig); err != nil {
+				logger.WithError(err).Error("error while tailing cloud logs")
+			}
+		}()
 
 	runningLoop:
 		for {
