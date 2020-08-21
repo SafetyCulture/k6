@@ -72,7 +72,6 @@ func (m *msg) Log(logger logrus.FieldLogger) {
 	}
 
 	for _, dropped := range m.DroppedEntries {
-		// nsec, _ := strconv.Atoi(dropped.Timestamp)
 		nsec, _ := strconv.Atoi(dropped.Timestamp)
 		logger.WithFields(
 			logrus.Fields(dropped.Labels),
@@ -163,20 +162,16 @@ func (c *Config) StreamLogsToLogger(
 
 	for {
 		_, message, err := conn.ReadMessage()
-		if err != nil {
-			select {
-			case <-ctx.Done():
-				return nil
-			default:
-			}
-			logger.WithError(err).Warn("error reading a message from the cloud")
-
-			return err
-		}
-		select {
+		select { // check if we should stop before continuing
 		case <-ctx.Done():
 			return nil
 		default:
+		}
+
+		if err != nil {
+			logger.WithError(err).Warn("error reading a message from the cloud")
+
+			return err
 		}
 
 		select {
