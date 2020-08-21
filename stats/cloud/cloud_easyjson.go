@@ -82,7 +82,384 @@ func (v samples) MarshalEasyJSON(w *jwriter.Writer) {
 func (v *samples) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud(l, v)
 }
-func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud1(in *jlexer.Lexer, out *SampleDataSingle) {
+func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud1(in *jlexer.Lexer, out *msg) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "streams":
+			if in.IsNull() {
+				in.Skip()
+				out.Streams = nil
+			} else {
+				in.Delim('[')
+				if out.Streams == nil {
+					if !in.IsDelim(']') {
+						out.Streams = make([]struct {
+							Stream map[string]string `json:"stream"`
+							Values [][2]string       `json:"values"`
+						}, 0, 2)
+					} else {
+						out.Streams = []struct {
+							Stream map[string]string `json:"stream"`
+							Values [][2]string       `json:"values"`
+						}{}
+					}
+				} else {
+					out.Streams = (out.Streams)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v4 struct {
+						Stream map[string]string `json:"stream"`
+						Values [][2]string       `json:"values"`
+					}
+					easyjson9def2ecdDecode(in, &v4)
+					out.Streams = append(out.Streams, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		case "dropped_entries":
+			if in.IsNull() {
+				in.Skip()
+				out.DroppedEntries = nil
+			} else {
+				in.Delim('[')
+				if out.DroppedEntries == nil {
+					if !in.IsDelim(']') {
+						out.DroppedEntries = make([]struct {
+							Labels    map[string]interface{} `json:"labels"`
+							Timestamp string                 `json:"timestamp"`
+						}, 0, 2)
+					} else {
+						out.DroppedEntries = []struct {
+							Labels    map[string]interface{} `json:"labels"`
+							Timestamp string                 `json:"timestamp"`
+						}{}
+					}
+				} else {
+					out.DroppedEntries = (out.DroppedEntries)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v5 struct {
+						Labels    map[string]interface{} `json:"labels"`
+						Timestamp string                 `json:"timestamp"`
+					}
+					easyjson9def2ecdDecode1(in, &v5)
+					out.DroppedEntries = append(out.DroppedEntries, v5)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud1(out *jwriter.Writer, in msg) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"streams\":"
+		out.RawString(prefix[1:])
+		if in.Streams == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v6, v7 := range in.Streams {
+				if v6 > 0 {
+					out.RawByte(',')
+				}
+				easyjson9def2ecdEncode(out, v7)
+			}
+			out.RawByte(']')
+		}
+	}
+	{
+		const prefix string = ",\"dropped_entries\":"
+		out.RawString(prefix)
+		if in.DroppedEntries == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v8, v9 := range in.DroppedEntries {
+				if v8 > 0 {
+					out.RawByte(',')
+				}
+				easyjson9def2ecdEncode1(out, v9)
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v msg) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud1(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *msg) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud1(l, v)
+}
+func easyjson9def2ecdDecode1(in *jlexer.Lexer, out *struct {
+	Labels    map[string]interface{} `json:"labels"`
+	Timestamp string                 `json:"timestamp"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "labels":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				in.Delim('{')
+				out.Labels = make(map[string]interface{})
+				for !in.IsDelim('}') {
+					key := string(in.String())
+					in.WantColon()
+					var v10 interface{}
+					if m, ok := v10.(easyjson.Unmarshaler); ok {
+						m.UnmarshalEasyJSON(in)
+					} else if m, ok := v10.(json.Unmarshaler); ok {
+						_ = m.UnmarshalJSON(in.Raw())
+					} else {
+						v10 = in.Interface()
+					}
+					(out.Labels)[key] = v10
+					in.WantComma()
+				}
+				in.Delim('}')
+			}
+		case "timestamp":
+			out.Timestamp = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson9def2ecdEncode1(out *jwriter.Writer, in struct {
+	Labels    map[string]interface{} `json:"labels"`
+	Timestamp string                 `json:"timestamp"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"labels\":"
+		out.RawString(prefix[1:])
+		if in.Labels == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
+			out.RawString(`null`)
+		} else {
+			out.RawByte('{')
+			v11First := true
+			for v11Name, v11Value := range in.Labels {
+				if v11First {
+					v11First = false
+				} else {
+					out.RawByte(',')
+				}
+				out.String(string(v11Name))
+				out.RawByte(':')
+				if m, ok := v11Value.(easyjson.Marshaler); ok {
+					m.MarshalEasyJSON(out)
+				} else if m, ok := v11Value.(json.Marshaler); ok {
+					out.Raw(m.MarshalJSON())
+				} else {
+					out.Raw(json.Marshal(v11Value))
+				}
+			}
+			out.RawByte('}')
+		}
+	}
+	{
+		const prefix string = ",\"timestamp\":"
+		out.RawString(prefix)
+		out.String(string(in.Timestamp))
+	}
+	out.RawByte('}')
+}
+func easyjson9def2ecdDecode(in *jlexer.Lexer, out *struct {
+	Stream map[string]string `json:"stream"`
+	Values [][2]string       `json:"values"`
+}) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "stream":
+			if in.IsNull() {
+				in.Skip()
+			} else {
+				in.Delim('{')
+				out.Stream = make(map[string]string)
+				for !in.IsDelim('}') {
+					key := string(in.String())
+					in.WantColon()
+					var v12 string
+					v12 = string(in.String())
+					(out.Stream)[key] = v12
+					in.WantComma()
+				}
+				in.Delim('}')
+			}
+		case "values":
+			if in.IsNull() {
+				in.Skip()
+				out.Values = nil
+			} else {
+				in.Delim('[')
+				if out.Values == nil {
+					if !in.IsDelim(']') {
+						out.Values = make([][2]string, 0, 2)
+					} else {
+						out.Values = [][2]string{}
+					}
+				} else {
+					out.Values = (out.Values)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v13 [2]string
+					if in.IsNull() {
+						in.Skip()
+					} else {
+						in.Delim('[')
+						v14 := 0
+						for !in.IsDelim(']') {
+							if v14 < 2 {
+								(v13)[v14] = string(in.String())
+								v14++
+							} else {
+								in.SkipRecursive()
+							}
+							in.WantComma()
+						}
+						in.Delim(']')
+					}
+					out.Values = append(out.Values, v13)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson9def2ecdEncode(out *jwriter.Writer, in struct {
+	Stream map[string]string `json:"stream"`
+	Values [][2]string       `json:"values"`
+}) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"stream\":"
+		out.RawString(prefix[1:])
+		if in.Stream == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
+			out.RawString(`null`)
+		} else {
+			out.RawByte('{')
+			v15First := true
+			for v15Name, v15Value := range in.Stream {
+				if v15First {
+					v15First = false
+				} else {
+					out.RawByte(',')
+				}
+				out.String(string(v15Name))
+				out.RawByte(':')
+				out.String(string(v15Value))
+			}
+			out.RawByte('}')
+		}
+	}
+	{
+		const prefix string = ",\"values\":"
+		out.RawString(prefix)
+		if in.Values == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v16, v17 := range in.Values {
+				if v16 > 0 {
+					out.RawByte(',')
+				}
+				out.RawByte('[')
+				for v18 := range v17 {
+					if v18 > 0 {
+						out.RawByte(',')
+					}
+					out.String(string((v17)[v18]))
+				}
+				out.RawByte(']')
+			}
+			out.RawByte(']')
+		}
+	}
+	out.RawByte('}')
+}
+func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud2(in *jlexer.Lexer, out *SampleDataSingle) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -131,7 +508,7 @@ func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud1(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud1(out *jwriter.Writer, in SampleDataSingle) {
+func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud2(out *jwriter.Writer, in SampleDataSingle) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -160,14 +537,14 @@ func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud1(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SampleDataSingle) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud1(w, v)
+	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud2(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SampleDataSingle) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud1(l, v)
+	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud2(l, v)
 }
-func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud2(in *jlexer.Lexer, out *SampleDataMap) {
+func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud3(in *jlexer.Lexer, out *SampleDataMap) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -217,9 +594,9 @@ func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud2(in *jlexer.Lexer, ou
 				for !in.IsDelim('}') {
 					key := string(in.String())
 					in.WantColon()
-					var v4 float64
-					v4 = float64(in.Float64())
-					(out.Values)[key] = v4
+					var v19 float64
+					v19 = float64(in.Float64())
+					(out.Values)[key] = v19
 					in.WantComma()
 				}
 				in.Delim('}')
@@ -234,7 +611,7 @@ func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud2(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud2(out *jwriter.Writer, in SampleDataMap) {
+func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud3(out *jwriter.Writer, in SampleDataMap) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -258,16 +635,16 @@ func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud2(out *jwriter.Writer,
 		out.RawString(prefix)
 		{
 			out.RawByte('{')
-			v5First := true
-			for v5Name, v5Value := range in.Values {
-				if v5First {
-					v5First = false
+			v20First := true
+			for v20Name, v20Value := range in.Values {
+				if v20First {
+					v20First = false
 				} else {
 					out.RawByte(',')
 				}
-				out.String(string(v5Name))
+				out.String(string(v20Name))
 				out.RawByte(':')
-				out.Float64(float64(v5Value))
+				out.Float64(float64(v20Value))
 			}
 			out.RawByte('}')
 		}
@@ -277,14 +654,14 @@ func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud2(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SampleDataMap) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud2(w, v)
+	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud3(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SampleDataMap) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud2(l, v)
+	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud3(l, v)
 }
-func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud3(in *jlexer.Lexer, out *SampleDataAggregatedHTTPReqs) {
+func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in *jlexer.Lexer, out *SampleDataAggregatedHTTPReqs) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -322,7 +699,7 @@ func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud3(in *jlexer.Lexer, ou
 				}
 			}
 		case "values":
-			easyjson9def2ecdDecode(in, &out.Values)
+			easyjson9def2ecdDecode2(in, &out.Values)
 		default:
 			in.SkipRecursive()
 		}
@@ -333,7 +710,7 @@ func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud3(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud3(out *jwriter.Writer, in SampleDataAggregatedHTTPReqs) {
+func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out *jwriter.Writer, in SampleDataAggregatedHTTPReqs) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -360,21 +737,21 @@ func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud3(out *jwriter.Writer,
 	{
 		const prefix string = ",\"values\":"
 		out.RawString(prefix)
-		easyjson9def2ecdEncode(out, in.Values)
+		easyjson9def2ecdEncode2(out, in.Values)
 	}
 	out.RawByte('}')
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SampleDataAggregatedHTTPReqs) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud3(w, v)
+	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SampleDataAggregatedHTTPReqs) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud3(l, v)
+	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(l, v)
 }
-func easyjson9def2ecdDecode(in *jlexer.Lexer, out *struct {
+func easyjson9def2ecdDecode2(in *jlexer.Lexer, out *struct {
 	Duration       AggregatedMetric `json:"http_req_duration"`
 	Blocked        AggregatedMetric `json:"http_req_blocked"`
 	Connecting     AggregatedMetric `json:"http_req_connecting"`
@@ -402,19 +779,19 @@ func easyjson9def2ecdDecode(in *jlexer.Lexer, out *struct {
 		}
 		switch key {
 		case "http_req_duration":
-			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in, &out.Duration)
+			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in, &out.Duration)
 		case "http_req_blocked":
-			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in, &out.Blocked)
+			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in, &out.Blocked)
 		case "http_req_connecting":
-			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in, &out.Connecting)
+			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in, &out.Connecting)
 		case "http_req_tls_handshaking":
-			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in, &out.TLSHandshaking)
+			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in, &out.TLSHandshaking)
 		case "http_req_sending":
-			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in, &out.Sending)
+			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in, &out.Sending)
 		case "http_req_waiting":
-			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in, &out.Waiting)
+			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in, &out.Waiting)
 		case "http_req_receiving":
-			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in, &out.Receiving)
+			easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in, &out.Receiving)
 		default:
 			in.SkipRecursive()
 		}
@@ -425,7 +802,7 @@ func easyjson9def2ecdDecode(in *jlexer.Lexer, out *struct {
 		in.Consumed()
 	}
 }
-func easyjson9def2ecdEncode(out *jwriter.Writer, in struct {
+func easyjson9def2ecdEncode2(out *jwriter.Writer, in struct {
 	Duration       AggregatedMetric `json:"http_req_duration"`
 	Blocked        AggregatedMetric `json:"http_req_blocked"`
 	Connecting     AggregatedMetric `json:"http_req_connecting"`
@@ -440,41 +817,41 @@ func easyjson9def2ecdEncode(out *jwriter.Writer, in struct {
 	{
 		const prefix string = ",\"http_req_duration\":"
 		out.RawString(prefix[1:])
-		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out, in.Duration)
+		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out, in.Duration)
 	}
 	{
 		const prefix string = ",\"http_req_blocked\":"
 		out.RawString(prefix)
-		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out, in.Blocked)
+		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out, in.Blocked)
 	}
 	{
 		const prefix string = ",\"http_req_connecting\":"
 		out.RawString(prefix)
-		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out, in.Connecting)
+		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out, in.Connecting)
 	}
 	{
 		const prefix string = ",\"http_req_tls_handshaking\":"
 		out.RawString(prefix)
-		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out, in.TLSHandshaking)
+		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out, in.TLSHandshaking)
 	}
 	{
 		const prefix string = ",\"http_req_sending\":"
 		out.RawString(prefix)
-		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out, in.Sending)
+		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out, in.Sending)
 	}
 	{
 		const prefix string = ",\"http_req_waiting\":"
 		out.RawString(prefix)
-		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out, in.Waiting)
+		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out, in.Waiting)
 	}
 	{
 		const prefix string = ",\"http_req_receiving\":"
 		out.RawString(prefix)
-		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out, in.Receiving)
+		easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out, in.Receiving)
 	}
 	out.RawByte('}')
 }
-func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in *jlexer.Lexer, out *AggregatedMetric) {
+func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in *jlexer.Lexer, out *AggregatedMetric) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -509,7 +886,7 @@ func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud4(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out *jwriter.Writer, in AggregatedMetric) {
+func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out *jwriter.Writer, in AggregatedMetric) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -530,7 +907,7 @@ func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud4(out *jwriter.Writer,
 	}
 	out.RawByte('}')
 }
-func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in *jlexer.Lexer, out *Sample) {
+func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud6(in *jlexer.Lexer, out *Sample) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -571,7 +948,7 @@ func easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(in *jlexer.Lexer, ou
 		in.Consumed()
 	}
 }
-func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out *jwriter.Writer, in Sample) {
+func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud6(out *jwriter.Writer, in Sample) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -601,10 +978,10 @@ func easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(out *jwriter.Writer,
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v Sample) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud5(w, v)
+	easyjson9def2ecdEncodeGithubComLoadimpactK6StatsCloud6(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *Sample) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud5(l, v)
+	easyjson9def2ecdDecodeGithubComLoadimpactK6StatsCloud6(l, v)
 }
