@@ -250,7 +250,7 @@ This will execute the test on the Load Impact cloud service. Use "k6 login cloud
 		shouldExitLoop := false
 		go func() {
 			// TODO replace with another context
-			if err := client.StreamLogsToLogger(context.Background(), logger, refID, cloudConfig); err != nil {
+			if err := cloudConfig.StreamLogsToLogger(context.Background(), logger, refID, 0, 100); err != nil {
 				logger.WithError(err).Error("error while tailing cloud logs")
 			}
 		}()
@@ -315,7 +315,67 @@ func cloudCmdFlagSet() *pflag.FlagSet {
 	return flags
 }
 
+//nolint:gochecknoglobals
+var cloudLogsCmd = &cobra.Command{
+	Use:   "logs",
+	Short: "Tail cloud logs from the cloud",
+	Long: `Tail cloud logs from the cloud.
+This will execute the test on the Load Impact cloud service. Use "k6 login cloud" to authenticate.`,
+	Example: `
+        k6 cloud logs 123456`[1:],
+	Args: exactArgsWithMsg(1, "arg should be a test run id"),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		logger := logrus.New()
+		logger.Level = logrus.TraceLevel
+		logger.Formatter = &logrus.TextFormatter{
+			FullTimestamp:   true,
+			TimestampFormat: "2006-01-02T15:04:05.0000",
+		}
+
+		cloudConfig := cloud.NewConfig()
+		fileConf, _, err := readDiskConfig(afero.NewOsFs())
+		if err != nil {
+			return err
+		}
+		envConf, err := readEnvConfig()
+		if err != nil {
+			return err
+		}
+		start, err := cmd.Flags().GetDuration("start")
+		if err != nil {
+			return err
+		}
+
+		limit, err := cmd.Flags().GetInt("limit")
+		if err != nil {
+			return err
+		}
+		cloudConfig = cloudConfig.Apply(fileConf.Collectors.Cloud).Apply(envConf.Collectors.Cloud)
+
+		refID := args[0]
+
+		// TODO replace with another context
+		if err := cloudConfig.StreamLogsToLogger(context.Background(), logger, refID, start, limit); err != nil {
+			logger.WithError(err).Error("error while tailing cloud logs")
+		}
+
+		return nil
+	},
+}
+
+func cloudLogsCmdFlagSet() *pflag.FlagSet {
+	flags := pflag.NewFlagSet("", pflag.ContinueOnError)
+	flags.SortFlags = false
+
+	flags.Duration("start", 5*time.Minute, "from how long ago to start tailing")
+	flags.Int("limit", 100, "maximum amount of messages to be in a response from the server")
+
+	return flags
+}
+
 func init() {
+	cloudCmd.AddCommand(cloudLogsCmd)
+	cloudLogsCmd.Flags().AddFlagSet(cloudLogsCmdFlagSet())
 	RootCmd.AddCommand(cloudCmd)
 	cloudCmd.Flags().SortFlags = false
 	cloudCmd.Flags().AddFlagSet(cloudCmdFlagSet())

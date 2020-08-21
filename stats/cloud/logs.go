@@ -92,7 +92,7 @@ func parseFilters(id, level string) ([]string, error) {
 	return []string{idFilter, levelFilter}, nil
 }
 
-func (c *Config) getRequest(referenceID string) (*url.URL, error) {
+func (c *Config) getRequest(referenceID string, start time.Duration, limit int) (*url.URL, error) {
 	u, err := url.Parse(c.LogsHost.String)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't parse cloud logs host %w", err)
@@ -103,18 +103,10 @@ func (c *Config) getRequest(referenceID string) (*url.URL, error) {
 		return nil, err
 	}
 
-	start := "5m" // TODO make configurable when this can be used with older tests
-	d, err := time.ParseDuration(start)
-	if err != nil {
-		return nil, fmt.Errorf("invalid duration `%s` to get logs from ago %w", start, err)
-	}
-
-	limit := 100 // TODO make it configurable, maybe ?
-
 	u.RawQuery = fmt.Sprintf(`query={%s}&limit=%d&start=%d`,
 		strings.Join(filters, ","),
 		limit,
-		time.Now().Add(-d).UnixNano(),
+		time.Now().Add(-start).UnixNano(),
 	)
 
 	return u, nil
@@ -122,16 +114,16 @@ func (c *Config) getRequest(referenceID string) (*url.URL, error) {
 
 // StreamLogsToLogger streams the logs for the configured test to the provided logger until ctx is
 // Done or an error occurs.
-func (c *Client) StreamLogsToLogger(
-	ctx context.Context, logger logrus.FieldLogger, referenceID string, config Config,
+func (c *Config) StreamLogsToLogger(
+	ctx context.Context, logger logrus.FieldLogger, referenceID string, start time.Duration, limit int,
 ) error {
-	u, err := config.getRequest(referenceID)
+	u, err := c.getRequest(referenceID, start, limit)
 	if err != nil {
 		return err
 	}
 
 	headers := make(http.Header)
-	headers.Add("Sec-WebSocket-Protocol", "token="+c.token)
+	headers.Add("Sec-WebSocket-Protocol", "token="+c.Token.String)
 
 	// We don't need to close the http body or use it for anything until we want to actually log
 	// what the server returned as body when it errors out
