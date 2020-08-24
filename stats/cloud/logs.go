@@ -37,14 +37,20 @@ import (
 
 //easyjson:json
 type msg struct {
-	Streams []struct {
-		Stream map[string]string `json:"stream"`
-		Values [][2]string       `json:"values"` // this can be optimized
-	} `json:"streams"`
-	DroppedEntries []struct {
-		Labels    map[string]interface{} `json:"labels"`
-		Timestamp string                 `json:"timestamp"`
-	} `json:"dropped_entries"`
+	Streams        []msgStreams        `json:"streams"`
+	DroppedEntries []msgDroppedEntries `json:"dropped_entries"`
+}
+
+//easyjson:json
+type msgStreams struct {
+	Stream map[string]string `json:"stream"`
+	Values [][2]string       `json:"values"` // this can be optimized
+}
+
+//easyjson:json
+type msgDroppedEntries struct {
+	Labels    map[string]string `json:"labels"`
+	Timestamp string            `json:"timestamp"`
 }
 
 func getLevelsStr(level string) ([]string, error) {
@@ -67,16 +73,10 @@ func (m *msg) Log(logger logrus.FieldLogger) {
 	var level string
 
 	for _, stream := range m.Streams {
-		fields := make(logrus.Fields, len(stream.Stream)-1)
-
-		for key, val := range stream.Stream {
-			if key == "level" {
-				level = val
-
-				continue
-			}
-
-			fields[key] = val
+		fields := labelsToLogrusFields(stream.Stream)
+		var ok bool
+		if level, ok = stream.Stream["level"]; ok {
+			delete(fields, "level")
 		}
 
 		for _, value := range stream.Values {
@@ -94,10 +94,18 @@ func (m *msg) Log(logger logrus.FieldLogger) {
 
 	for _, dropped := range m.DroppedEntries {
 		nsec, _ := strconv.Atoi(dropped.Timestamp)
-		logger.WithFields(
-			logrus.Fields(dropped.Labels),
-		).WithTime(time.Unix(0, int64(nsec))).Warn("dropped")
+		logger.WithFields(labelsToLogrusFields(dropped.Labels)).WithTime(time.Unix(0, int64(nsec))).Warn("dropped")
 	}
+}
+
+func labelsToLogrusFields(labels map[string]string) logrus.Fields {
+	fields := make(logrus.Fields, len(labels))
+
+	for key, val := range labels {
+		fields[key] = val
+	}
+
+	return fields
 }
 
 func parseFilters(id, level string) ([]string, error) {
