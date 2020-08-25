@@ -192,6 +192,9 @@ func (c Config) Apply(cfg Config) Config {
 	if cfg.Host.Valid && cfg.Host.String != "" {
 		c.Host = cfg.Host
 	}
+	if cfg.LogsHost.Valid && cfg.LogsHost.String != "" {
+		c.LogsHost = cfg.LogsHost
+	}
 	if cfg.WebAppURL.Valid {
 		c.WebAppURL = cfg.WebAppURL
 	}
