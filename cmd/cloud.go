@@ -60,7 +60,7 @@ var cloudCmd = &cobra.Command{
 	Short: "Run a test on the cloud",
 	Long: `Run a test on the cloud.
 
-This will execute the test on the Load Impact cloud service. Use "k6 login cloud" to authenticate.`,
+This will execute the test on the k6 cloud service. Use "k6 login cloud" to authenticate.`,
 	Example: `
         k6 cloud script.js`[1:],
 	Args: exactArgsWithMsg(1, "arg should either be \"-\", if reading script from stdin, or a path to a script file"),
@@ -320,7 +320,7 @@ var cloudLogsCmd = &cobra.Command{
 	Use:   "logs",
 	Short: "Tail cloud logs from the cloud",
 	Long: `Tail cloud logs from the cloud.
-This will execute the test on the Load Impact cloud service. Use "k6 login cloud" to authenticate.`,
+This will tail logs of test already executed in the k6 cloud service. Use "k6 login cloud" to authenticate.`,
 	Example: `
         k6 cloud logs 123456`[1:],
 	Args: exactArgsWithMsg(1, "arg should be a test run id"),
