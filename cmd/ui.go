@@ -243,7 +243,7 @@ func showProgress(
 	ctx context.Context, conf Config,
 	pbs []*pb.ProgressBar, logger *logrus.Logger,
 ) {
-	if quiet || conf.HTTPDebug.Valid && conf.HTTPDebug.String != "" {
+	if quiet {
 		return
 	}
 
