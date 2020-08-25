@@ -28,6 +28,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sync"
 	"syscall"
 	"time"
 
@@ -68,6 +69,8 @@ This will execute the test on the k6 cloud service. Use "k6 login cloud" to auth
         k6 cloud script.js`[1:],
 	Args: exactArgsWithMsg(1, "arg should either be \"-\", if reading script from stdin, or a path to a script file"),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// TODO: don't use the Global logger
+		logger := logrus.StandardLogger()
 		// TODO: disable in quiet mode?
 		_, _ = BannerColor.Fprintf(stdout, "\n%s\n\n", consts.Banner())
 
@@ -85,8 +88,6 @@ This will execute the test on the k6 cloud service. Use "k6 login cloud" to auth
 
 		filename := args[0]
 		filesystems := loader.CreateFilesystems()
-		// TODO: don't use the Global logger
-		logger := logrus.StandardLogger()
 		src, err := loader.ReadSource(logger, filename, pwd, filesystems, os.Stdin)
 		if err != nil {
 			return err
@@ -211,6 +212,16 @@ This will execute the test on the k6 cloud service. Use "k6 login cloud" to auth
 			pb.WithConstProgress(0, "Initializing the cloud test"),
 		)
 
+		progressCtx, progressCancel := context.WithCancel(context.Background())
+		progressBarWG := &sync.WaitGroup{}
+		progressBarWG.Add(1)
+		defer progressBarWG.Wait()
+		defer progressCancel()
+		go func() {
+			showProgress(progressCtx, conf, []*pb.ProgressBar{progressBar}, logger)
+			progressBarWG.Done()
+		}()
+
 		// The quiet option hides the progress bar and disallow aborting the test
 		if quiet {
 			return nil
@@ -269,7 +280,6 @@ This will execute the test on the k6 cloud service. Use "k6 login cloud" to auth
 					if (testProgress.RunStatus > lib.RunStatusRunning) || (exitOnRunning && testProgress.RunStatus == lib.RunStatusRunning) {
 						shouldExitLoop = true
 					}
-					printBar(progressBar)
 				} else {
 					logger.WithError(progressErr).Error("Test progress error")
 				}
