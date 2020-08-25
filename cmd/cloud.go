@@ -52,7 +52,10 @@ const (
 )
 
 //nolint:gochecknoglobals
-var exitOnRunning = os.Getenv("K6_EXIT_ON_RUNNING") != ""
+var (
+	exitOnRunning   = os.Getenv("K6_EXIT_ON_RUNNING") != ""
+	disableTailLogs = os.Getenv("K6_DISABLE_TAIL_CLOUD_LOGS") != ""
+)
 
 //nolint:gochecknoglobals
 var cloudCmd = &cobra.Command{
@@ -248,12 +251,14 @@ This will execute the test on the k6 cloud service. Use "k6 login cloud" to auth
 		var progressErr error
 		ticker := time.NewTicker(time.Millisecond * 2000)
 		shouldExitLoop := false
-		go func() {
-			// TODO replace with another context
-			if err := cloudConfig.StreamLogsToLogger(context.Background(), logger, refID, 0, 100); err != nil {
-				logger.WithError(err).Error("error while tailing cloud logs")
-			}
-		}()
+		if !disableTailLogs {
+			go func() {
+				// TODO replace with another context
+				if err := cloudConfig.StreamLogsToLogger(context.Background(), logger, refID, 0, 100); err != nil {
+					logger.WithError(err).Error("error while tailing cloud logs")
+				}
+			}()
+		}
 
 	runningLoop:
 		for {
@@ -311,6 +316,11 @@ func cloudCmdFlagSet() *pflag.FlagSet {
 	// We also need to explicitly set the default value for the usage message here, so setting
 	// K6_EXIT_ON_RUNNING=true won't affect the usage message
 	flags.Lookup("exit-on-running").DefValue = "false"
+
+	// read the comments above for explanation why this is done this way and what are the problems
+	flags.BoolVar(&disableTailLogs, "disable-tailing-logs", disableTailLogs,
+		"disable the automatic tailing of logs when a test is executed in the cloud")
+	flags.Lookup("disable-tailing-logs").DefValue = "false"
 
 	return flags
 }
