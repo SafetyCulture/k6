@@ -28,6 +28,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -55,7 +56,7 @@ const (
 //nolint:gochecknoglobals
 var (
 	exitOnRunning = os.Getenv("K6_EXIT_ON_RUNNING") != ""
-	showCloudLogs = os.Getenv("K6_SHOW_CLOUD_LOGS") != "false"
+	showCloudLogs = true
 )
 
 //nolint:gochecknoglobals
@@ -71,6 +72,19 @@ This will execute the test on the k6 cloud service. Use "k6 login cloud" to auth
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// TODO: don't use the Global logger
 		logger := logrus.StandardLogger()
+		// we specifically first parse it and return an error if it has bad value and then check if
+		// we are going to set it  ... so we always parse it instead of it breaking the command if
+		// the cli flag is removed
+		if showCloudLogsEnv, ok := os.LookupEnv("K6_SHOW_CLOUD_LOGS"); ok {
+			showCloudLogsValue, err := strconv.ParseBool(showCloudLogsEnv)
+			if err != nil {
+				return fmt.Errorf("parsing K6_SHOW_CLOUD_LOGS returned an error: %w", err)
+			}
+			if !cmd.Flags().Changed("show-logs") {
+				showCloudLogs = showCloudLogsValue
+			}
+
+		}
 		// TODO: disable in quiet mode?
 		_, _ = BannerColor.Fprintf(stdout, "\n%s\n\n", consts.Banner())
 
@@ -330,7 +344,6 @@ func cloudCmdFlagSet() *pflag.FlagSet {
 	// read the comments above for explanation why this is done this way and what are the problems
 	flags.BoolVar(&showCloudLogs, "show-logs", showCloudLogs,
 		"enable showing of logs when a test is executed in the cloud")
-	flags.Lookup("show-logs").DefValue = "true"
 
 	return flags
 }
