@@ -54,8 +54,8 @@ const (
 
 //nolint:gochecknoglobals
 var (
-	exitOnRunning   = os.Getenv("K6_EXIT_ON_RUNNING") != ""
-	disableTailLogs = os.Getenv("K6_DISABLE_TAIL_CLOUD_LOGS") != ""
+	exitOnRunning = os.Getenv("K6_EXIT_ON_RUNNING") != ""
+	showCloudLogs = os.Getenv("K6_SHOW_CLOUD_LOGS") != "false"
 )
 
 //nolint:gochecknoglobals
@@ -262,7 +262,7 @@ This will execute the test on the k6 cloud service. Use "k6 login cloud" to auth
 		var progressErr error
 		ticker := time.NewTicker(time.Millisecond * 2000)
 		shouldExitLoop := false
-		if !disableTailLogs {
+		if showCloudLogs {
 			go func() {
 				// TODO replace with another context
 				if err := cloudConfig.StreamLogsToLogger(context.Background(), logger, refID, 0, 100); err != nil {
@@ -328,74 +328,14 @@ func cloudCmdFlagSet() *pflag.FlagSet {
 	flags.Lookup("exit-on-running").DefValue = "false"
 
 	// read the comments above for explanation why this is done this way and what are the problems
-	flags.BoolVar(&disableTailLogs, "disable-tailing-logs", disableTailLogs,
-		"disable the automatic tailing of logs when a test is executed in the cloud")
-	flags.Lookup("disable-tailing-logs").DefValue = "false"
-
-	return flags
-}
-
-//nolint:gochecknoglobals
-var cloudLogsCmd = &cobra.Command{
-	Use:   "logs",
-	Short: "Tail cloud logs from the cloud",
-	Long: `Tail cloud logs from the cloud.
-This will tail logs of test already executed in the k6 cloud service. Use "k6 login cloud" to authenticate.`,
-	Example: `
-        k6 cloud logs 123456`[1:],
-	Args: exactArgsWithMsg(1, "arg should be a test run id"),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		logger := logrus.New()
-		logger.Level = logrus.TraceLevel
-		logger.Formatter = &logrus.TextFormatter{
-			FullTimestamp:   true,
-			TimestampFormat: "2006-01-02T15:04:05.0000",
-		}
-
-		cloudConfig := cloud.NewConfig()
-		fileConf, _, err := readDiskConfig(afero.NewOsFs())
-		if err != nil {
-			return err
-		}
-		envConf, err := readEnvConfig()
-		if err != nil {
-			return err
-		}
-		start, err := cmd.Flags().GetDuration("start")
-		if err != nil {
-			return err
-		}
-
-		limit, err := cmd.Flags().GetInt("limit")
-		if err != nil {
-			return err
-		}
-		cloudConfig = cloudConfig.Apply(fileConf.Collectors.Cloud).Apply(envConf.Collectors.Cloud)
-
-		refID := args[0]
-
-		// TODO replace with another context
-		if err := cloudConfig.StreamLogsToLogger(context.Background(), logger, refID, start, limit); err != nil {
-			logger.WithError(err).Error("error while tailing cloud logs")
-		}
-
-		return nil
-	},
-}
-
-func cloudLogsCmdFlagSet() *pflag.FlagSet {
-	flags := pflag.NewFlagSet("", pflag.ContinueOnError)
-	flags.SortFlags = false
-
-	flags.Duration("start", 5*time.Minute, "from how long ago to start tailing")
-	flags.Int("limit", 100, "maximum amount of messages to be in a response from the server")
+	flags.BoolVar(&showCloudLogs, "show-logs", showCloudLogs,
+		"enable showing of logs when a test is executed in the cloud")
+	flags.Lookup("show-logs").DefValue = "true"
 
 	return flags
 }
 
 func init() {
-	cloudCmd.AddCommand(cloudLogsCmd)
-	cloudLogsCmd.Flags().AddFlagSet(cloudLogsCmdFlagSet())
 	RootCmd.AddCommand(cloudCmd)
 	cloudCmd.Flags().SortFlags = false
 	cloudCmd.Flags().AddFlagSet(cloudCmdFlagSet())
